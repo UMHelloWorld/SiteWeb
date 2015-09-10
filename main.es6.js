@@ -8,7 +8,7 @@
 	 - babel
 	 - stylus
 */
-require("babel/polyfill");
+require("core-js");
 
 var express = require('express');
 var bodyParser = require('body-parser');
