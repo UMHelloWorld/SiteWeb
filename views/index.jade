@@ -4,6 +4,24 @@ html
 		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 		script(src='https://code.jquery.com/jquery-2.1.4.js')
+		script
+			| $(window).scroll(function(){
+			| 	if($(document).scrollTop() > 0)
+			|	 	$(document.body).addClass('smallHeader');
+			| 	else
+			| 		$(document.body).removeClass('smallHeader');
+			| });
 	body
 		header
+			.background
+				.content
+					img#logoSmall(src='/static/images/header/logo.png')
+					div.links
+						each page in pages
+							a.link(class=(page.isActive?'active':''), href='/'+page.url)
+								i.fa(class='fa-'+page.icon)
+								span= page.title
+					img#logo(src='/static/images/header/logo.png')
 		div#content
+			if page=="index"
+				include pages/index
