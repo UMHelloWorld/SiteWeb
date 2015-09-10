@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "body-parser": "latest",
+    "express": "latest",
+    "jade": "latest",
+    "kouto-swiss": "^0.11.13",
+    "mysql": "latest"
+  }
+}
