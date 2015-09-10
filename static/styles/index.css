@@ -376,6 +376,7 @@ body header .background .content #logoSmall {
   opacity: 0;
   float: left;
   height: 50px;
+  position: absolute;
 }
 body header .background .content .links {
   text-align: right;
