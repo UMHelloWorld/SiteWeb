@@ -1,0 +1,28 @@
+#listDocuments(ng-controller='list-documents')
+	.headers
+		.header(class='{{["active", ""][activeTab]}}', ng-click='activeTab = 0')
+			i.fa.fa-file-o.icon
+			span Mes cours
+			span.fa-stack
+				i.fa.fa-circle-thin.fa-stack-2x
+				i.fa.fa-plus.fa-stack-1x
+		.header(class='{{["", "active"][activeTab]}}', ng-click='activeTab = 1')
+			i.fa.fa-search.icon
+			span Tous les cours
+		div.input(class='{{(search.length>=1)?"large":""}}')
+			input(placeholder="Chercher un cours...", ng-model='search', ng-change='searchChanged()')
+			i.fa.fa-search(ng-show='search.length==0')
+			i.fa.fa-close(ng-show='search.length>=1', style='color: black;', ng-click='search=""')
+		div.autoComplete(class='{{(search.length>=2)?"active":""}}')
+			div.UE(ng-repeat='UE in UEs | filter:search')
+				.code {{UE.code}}
+				.title {{UE.name}}
+	.contents
+		.slider(class='{{["","showSecond"][activeTab]}}')
+			.content
+				| Corporation j-pop military-grade modem franchise artisanal euro-pop grenade man neural papier-mache. Order-flow semiotics sprawl A.I. long-chain hydrocarbons face forwards network cartel weathered cardboard motion. Math-voodoo god concrete tank-traps systemic claymore mine artisanal nodality ablative. Ablative smart-nodal point marketing towards monofilament tower. 
+			.content
+				| Courier wonton soup plastic tattoo nano-industrial grade vehicle engine systemic neural. Tank-traps Legba ablative saturation point singularity augmented reality media DIY crypto-dissident. Semiotics construct singularity market tank-traps face forwards city 3D-printed post-DIY. Dome market knife nano-neural free-market Chiba youtube weathered soul-delay. Rain narrative alcohol soul-delay youtube disposable long-chain hydrocarbons. Nano-hotdog camera network rebar systema free-market kanji Legba tanto papier-mache beef noodles fluidity cartel franchise sunglasses office. 
+.header
+	i.fa.fa-newspaper-o.icon
+	span Actualités
