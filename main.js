@@ -69,5 +69,5 @@ app.get('/:page', function (req, res) {
 	});else res.redirect("/index");
 });
 
-app.listen(57651);
+app.listen(5765);
 //# sourceMappingURL=main.js.map
