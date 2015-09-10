@@ -1,9 +1,10 @@
 html
 	head
 		link(rel="stylesheet", type="text/css", href='/static/styles/index.css')
-		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+		link(href='https://fonts.googleapis.com/css?family=Open+Sans:400,300', rel='stylesheet', type='text/css')
+		link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css")
 		script(src='https://code.jquery.com/jquery-2.1.4.js')
+		script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js')
 		script
 			| $(window).scroll(function(){
 			| 	if($(document).scrollTop() > 0)
@@ -11,7 +12,9 @@ html
 			| 	else
 			| 		$(document.body).removeClass('smallHeader');
 			| });
-	body
+		link(rel='stylesheet', href='/static/styles/pages/'+page+'.css')
+		script(src='/static/scripts/'+page+'.js')
+	body(ng-app='app')
 		header
 			.background
 				.content
@@ -22,6 +25,8 @@ html
 								i.fa(class='fa-'+page.icon)
 								span= page.title
 					img#logo(src='/static/images/header/logo.png')
-		div#content
+		div#content(nd-controller=page)
 			if page=="index"
 				include pages/index
+			if page=="documents"
+				include pages/documents
