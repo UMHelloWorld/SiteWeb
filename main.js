@@ -8,8 +8,9 @@
 	 - babel
 	 - stylus
 */
-
 'use strict';
+
+require("babel/polyfill");
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -68,5 +69,5 @@ app.get('/:page', function (req, res) {
 	});else res.redirect("/index");
 });
 
-app.listen(8080);
+app.listen(57651);
 //# sourceMappingURL=main.js.map
