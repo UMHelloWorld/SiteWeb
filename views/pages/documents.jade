@@ -1,12 +1,12 @@
 #listDocuments(ng-controller='list-documents')
 	.headers
-		.header(class='{{["active", ""][activeTab]}}', ng-click='activeTab = 0')
+		.header(class='{{["active", ""][activeTab]}}', ng-mousedown='activeTab = 0')
 			i.fa.fa-file-o.icon
 			span Mes cours
 			span.fa-stack
 				i.fa.fa-circle-thin.fa-stack-2x
 				i.fa.fa-plus.fa-stack-1x
-		.header(class='{{["", "active"][activeTab]}}', ng-click='activeTab = 1')
+		.header(class='{{["", "active"][activeTab]}}', ng-mousedown='activeTab = 1')
 			i.fa.fa-search.icon
 			span Tous les cours
 		div.input(class='{{(search.length>=1)?"large":""}}')
