@@ -57,6 +57,7 @@ var pages = [
 app.get('/', (req, res) => {
 	res.redirect("/index");
 });
+
 app.get('/:page', (req, res) => {
 	if(pages.find((page) => page.url==req.params.page))
 		res.render("index.jade", 
@@ -75,6 +76,5 @@ app.get('/:page', (req, res) => {
 	else
 		res.redirect("/index");
 });
-
 
 app.listen(5765);

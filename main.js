@@ -53,6 +53,7 @@ var pages = [{
 app.get('/', function (req, res) {
 	res.redirect("/index");
 });
+
 app.get('/:page', function (req, res) {
 	if (pages.find(function (page) {
 		return page.url == req.params.page;
