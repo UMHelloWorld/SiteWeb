@@ -7,7 +7,7 @@ html
 		script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js')
 		script
 			| $(window).scroll(function(){
-			| 	if($(document).scrollTop() > 5)
+			| 	if($(document).scrollTop() >= (300-80))
 			|	 	$(document.body).addClass('smallHeader');
 			| 	else
 			| 		$(document.body).removeClass('smallHeader');
@@ -18,15 +18,58 @@ html
 		header
 			.background
 				.content
-					img#logoSmall(src='/static/images/header/logo.png')
-					div.links
-						each page in pages
-							a.link(class=(page.isActive?'active':''), href='/'+page.url)
-								i.fa(class='fa-'+page.icon)
-								span= page.title
 					img#logo(src='/static/images/header/logo.png')
-		div#content(nd-controller=page)
-			if page=="index"
-				include pages/index
-			if page=="documents"
-				include pages/documents
+		#fixedPartHeader
+			.content
+				img#logoSmall(src='/static/images/header/logo.png')
+				div.links
+					each page in pages
+						a.link(class=(page.isActive?'active':''), href='/'+page.url)
+							i.fa(class='fa-'+page.icon)
+							span= page.title
+		div#page
+			div#content(nd-controller=page)
+				if page=="index"
+					include pages/index
+				if page=="documents"
+					include pages/documents
+	//- script.
+	//- 	var smoothScroll = {
+	//- 	speed: 0,
+	//- 	delay: 10, // en ms
+	//- 	timer: null,
+	//- 	scrollSpeed: 4,
+	//- 	inertia: 0.95,
+	//- 	init: function(){
+	//- 	this.setEventsListeners();
+	//- 	},
+	//- 	setEventsListeners: function(){
+	//- 	var me = this;
+	//- 	$(document).bind('DOMMouseScroll mousewheel', function(e){
+	//- 	me.setSpeed(e.originalEvent);
+	//- 	});
+	//- 	},
+	//- 	setSpeed: function(e){
+	//- 	console.log(e);
+	//- 	this.speed += e.wheelDelta < 0 ? -this.scrollSpeed : this.scrollSpeed;
+	//- 	if(this.timer == null){
+	//- 	this.timer = setTimeout(this.smoothScroll, this.delay, this);
+	//- 	}
+	//- 	e.preventDefault();
+	//- 	},
+	//- 	smoothScroll: function(scope){
+	//- 	var self = scope;
+	//- 	self.speed *= self.inertia;
+
+	//- 	window.scrollTo(0, window.scrollY - self.speed );
+
+	//- 	if(self.speed < self.inertia && self.speed > -self.inertia){
+	//- 	self.speed = 0;
+	//- 	clearTimeout(self.timer);
+	//- 	self.timer = null;
+	//- 	}else{
+	//- 	self.timer = setTimeout(self.smoothScroll, self.delay, self);
+	//- 	}
+	//- 	}
+	//- 	}
+	//- 	smoothScroll.init();
