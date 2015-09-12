@@ -1,28 +1,49 @@
 #listDocuments(ng-controller='list-documents')
-	.headers
+	.headers(ng-init='filtre=""')
 		.header(class='{{["active", ""][activeTab]}}', ng-mousedown='activeTab = 0')
 			i.fa.fa-file-o.icon
 			span Mes cours
-			span.fa-stack
-				i.fa.fa-circle-thin.fa-stack-2x
-				i.fa.fa-plus.fa-stack-1x
+			//- span.fa-stack
+			//- 	i.fa.fa-circle-thin.fa-stack-2x
+			//- 	i.fa.fa-plus.fa-stack-1x
 		.header(class='{{["", "active"][activeTab]}}', ng-mousedown='activeTab = 1')
 			i.fa.fa-search.icon
 			span Tous les cours
-		div.input(class='{{(search.length>=1)?"large":""}}')
+		div.input(ng-show='activeTab==1')
+			input(placeholder="Filtrer", ng-model='filtre', ng-change='searchChanged()')
+			i.fa.fa-filter
+
+		div.input(class='{{(search.length>=1)?"large":""}}', ng-show='activeTab==0')
 			input(placeholder="Chercher un cours...", ng-model='search', ng-change='searchChanged()')
 			i.fa.fa-search(ng-show='search.length==0')
 			i.fa.fa-close(ng-show='search.length>=1', style='color: black;', ng-click='search=""')
-		div.autoComplete(class='{{(search.length>=2)?"active":""}}')
+		div.autoComplete(class='{{(search.length>=2)?"active":""}}', ng-show='activeTab==0')
 			div.UE(ng-repeat='UE in UEs | filter:search')
 				.code {{UE.code}}
 				.title {{UE.name}}
 	.contents
 		.slider(class='{{["","showSecond"][activeTab]}}')
 			.content
-				| Corporation j-pop military-grade modem franchise artisanal euro-pop grenade man neural papier-mache. Order-flow semiotics sprawl A.I. long-chain hydrocarbons face forwards network cartel weathered cardboard motion. Math-voodoo god concrete tank-traps systemic claymore mine artisanal nodality ablative. Ablative smart-nodal point marketing towards monofilament tower. 
+				.ue(ng-repeat='doc in myDocuments')
+					div.leaf
+						b {{doc.code}}
+						div {{doc.name}}
 			.content
-				| Courier wonton soup plastic tattoo nano-industrial grade vehicle engine systemic neural. Tank-traps Legba ablative saturation point singularity augmented reality media DIY crypto-dissident. Semiotics construct singularity market tank-traps face forwards city 3D-printed post-DIY. Dome market knife nano-neural free-market Chiba youtube weathered soul-delay. Rain narrative alcohol soul-delay youtube disposable long-chain hydrocarbons. Nano-hotdog camera network rebar systema free-market kanji Legba tanto papier-mache beef noodles fluidity cartel franchise sunglasses office. 
+				.path
+					.pathComponent(ng-click='currentNode.goParent(currentNode.path.length)')
+						i.fa.fa-home
+						| Tout
+					.pathComponent(ng-repeat='(k,path) in currentNode.path', ng-click='currentNode.goParent(currentNode.path.length-k)')
+						i.fa.fa-angle-right
+						span {{path.name}}
+				.ue(ng-repeat='node in currentNode.node.content | filter:{name: filtre}')
+					div(ng-click='currentNode.goIn(node)')
+						div(ng-show='node.content').node
+							i.fa.fa-folder-o
+							span {{node.name}}
+						div(ng-show='!node.content').leaf
+							b {{node.code}}
+							div {{node.name}}
 .header
 	i.fa.fa-newspaper-o.icon
 	span Actualités
