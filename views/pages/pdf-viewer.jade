@@ -1,0 +1,24 @@
+link(rel="stylesheet", type="text/css", href='/static/styles/pages/pdf-viewer.css')
+script(src="/static/scripts/pdf/pdf.js")
+script(src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/2.2.0/math.min.js")
+script.
+	PDFJS.workerSrc = '/static/scripts/pdf/pdf.worker.js';
+script(src='/static/scripts/pdf-viewer.js')
+
+div#pdfPlace(ng-controller='pdf-viewer')
+	canvas#pdf
+	canvas#makeComment
+	div.comment(
+			ng-repeat='area in areas', 
+			style='top: {{area.from * dim.h}}px; height: {{area.to * dim.h - area.from * dim.h}}px;'
+		)
+		.content
+			.stuff
+				.content
+					div(ng-repeat='(k, comment) in area.list', ng-mouseover='drawComment(comment)', ng-mouseout='clear()')
+						| {{+k+1}}) "Ici, je ne comprend..."
+			.label(
+				ng-mouseover='draw(area, "rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.13)")',
+				ng-mouseout='clear()'
+			)
+				{{area.list.length}}
