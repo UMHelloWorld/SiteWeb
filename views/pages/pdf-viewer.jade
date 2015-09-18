@@ -5,20 +5,35 @@ script.
 	PDFJS.workerSrc = '/static/scripts/pdf/pdf.worker.js';
 script(src='/static/scripts/pdf-viewer.js')
 
-div#pdfPlace(ng-controller='pdf-viewer')
-	canvas#pdf
-	canvas#makeComment
-	div.comment(
-			ng-repeat='area in areas', 
-			style='top: {{area.from * dim.h}}px; height: {{area.to * dim.h - area.from * dim.h}}px;'
-		)
-		.content
-			.stuff
+div(ng-controller='pdf-app')
+	div#toolbox(ng-controller='toolbox')
+		.item(ng-repeat='action in actions', ng-click='press(action)', ng-class='{active: action.pressed}')
+			i(class='fa fa-{{action.icon}}')
+			span {{action.label}}
+	div#rightPanel(ng-controller='right-panel')
+		div(ng-show='mode=="compose"', ng-init='description = "";')
+			.title Poser une nouvelle question
+			.here
+			textarea(ng-model='description')
+			button(ng-click='sendComment(description)') Poser ma question / remarque !
+	div#pdfArea
+		div#pdfPlace(ng-controller='pdf-viewer')
+			canvas#pdf
+			canvas#makeComment(ng-class='{ableToDrawComment: $parent.ableToDrawComment}')
+			div.comment(
+					ng-repeat='area in areas',
+					ng-if='displayComments && (+currentPdfPage==+area.page)',
+					style='top: {{area.from * dim.h}}px; height: {{area.to * dim.h - area.from * dim.h}}px;'
+				)
 				.content
-					div(ng-repeat='(k, comment) in area.list', ng-mouseover='drawComment(comment)', ng-mouseout='clear()')
-						| {{+k+1}}) "Ici, je ne comprend..."
-			.label(
-				ng-mouseover='draw(area, "rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.13)")',
-				ng-mouseout='clear()'
-			)
-				{{area.list.length}}
+					//- .stuff
+						.content
+							div(ng-repeat='(k, comment) in area.list',
+								ng-mouseover='drawComment(comment)',
+								ng-mouseout='clear()')
+								| {{+k+1}}) {{(comment.description || "").substr(0, 20)}}...
+					.label(
+						ng-mouseover='draw(area, "rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.13)")',
+						ng-mouseout='clear()'
+					)
+						{{area.list.length}}
