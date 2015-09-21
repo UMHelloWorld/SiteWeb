@@ -26,7 +26,7 @@ div(ng-controller='pdf-app')
 		.resizer(ng-mousedown='resize($event)', ng-mousemove='resizing && resize($event, true)', ng-mouseup='resizing && finishResize()')
 		div(ng-show='ableToDrawComment').newComment
 			.helper(ng-class='{hide: ableToDrawComment=="composing"}')
-				| Pour poser une nouvelle question, $$\sum{cliquez}$$ puis glissez votre souris sur le document afin de dessiner la zone sur laquelle votre question porte.
+				| Pour poser une nouvelle question, cliquez puis glissez votre souris sur le document afin de dessiner la zone sur laquelle votre question porte.
 			.content
 				.title Poser une nouvelle question
 				.about

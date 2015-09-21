@@ -21,7 +21,7 @@ app.controller('pdf-viewer', function($scope, $http) {
         $scope.safeApply();
     });
 
-    $scope.annotations = [{
+    $scope.annotations = [/*{
         position: {
             relSX: 0.2,
             relSY: 0.2,
@@ -30,7 +30,7 @@ app.controller('pdf-viewer', function($scope, $http) {
         },
         page: 1,
         show: true
-    }];
+    }*/];
     $scope.areas = [];
     var buildAreas = function(){
         while($scope.areas.length)
@@ -178,8 +178,7 @@ app.controller('pdf-viewer', function($scope, $http) {
                 enableTab($('#rightPanel .writing textarea')[0]);
                 textAreaAdjust($('#rightPanel .writing textarea')[0]);
                 toDel.remove();
-                // div.prependTo(recept);
-                // $scope.$parent.paint = paintify(div);
+                $scope.$parent.paint = paintify(div_inside);
                 // console.log($scope.paint, $scope);
             });
             return $scope.annotations.pop();
