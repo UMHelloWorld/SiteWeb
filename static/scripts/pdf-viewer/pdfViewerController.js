@@ -70,6 +70,7 @@ app.controller('pdf-viewer', function($scope, $http) {
         while(fusionFirst());
     };
 
+    $scope.paint = {};
     $scope.$watch('annotations', buildAreas, true);
     buildAreas();
 
@@ -133,13 +134,18 @@ app.controller('pdf-viewer', function($scope, $http) {
             var nomralWidthCalc = (annotation.position.relEX - annotation.position.relSX) * normalWidth;
             var width = parseInt((annotation.position.relEX - annotation.position.relSX) * o.width());
             var height = parseInt((annotation.position.relEY - annotation.position.relSY) * o.height());
-            var myCanvas = CanvasFunctions.makeCanvas(width, height, nomralWidthCalc, DefaultQuality);
-            CanvasFunctions.drawPdfOn(PdfSource, $scope.$parent.currentPdfPage, myCanvas.canvas, {
-                x: annotation.position.relSX,
-                y: annotation.position.relSY,
-                w: (annotation.position.relEX - annotation.position.relSX),
-                h: (annotation.position.relEY - annotation.position.relSY)
-            }, {}, DefaultQuality);
+
+            var getCanvas = function(){
+                var myCanvas = CanvasFunctions.makeCanvas(width, height, nomralWidthCalc, DefaultQuality);
+                CanvasFunctions.drawPdfOn(PdfSource, $scope.$parent.currentPdfPage, myCanvas.canvas, {
+                    x: annotation.position.relSX,
+                    y: annotation.position.relSY,
+                    w: (annotation.position.relEX - annotation.position.relSX),
+                    h: (annotation.position.relEY - annotation.position.relSY)
+                }, {}, DefaultQuality);
+                return myCanvas;
+            }
+            myCanvas = getCanvas();
 
             var div = document.createElement('div');
             div.className = "paintArea";
@@ -149,7 +155,9 @@ app.controller('pdf-viewer', function($scope, $http) {
             $(div).css('left', $('#pdf').offset().left + annotation.position.relSX*o.width());
             $(div).css('top', $('#pdf').offset().top + annotation.position.relSY*o.height());
             $(div).css('z-index', '2000');
-            $(div).css('background-color', 'red');
+            // $(div).css('width', width);
+            // $(div).css('height', height);
+            $(div).css('background-color', 'white');
             $(div).css('transform-origin', 'left top');
             $(div).css('transform', 'scale('+(1/myCanvas.ratio)+')');
             $scope.$parent.ableToDrawComment = 'composing';
@@ -161,16 +169,18 @@ app.controller('pdf-viewer', function($scope, $http) {
                 left: recept.offset().left + recept.width()/2 - width/2,
                 top: recept.offset().top,
                 transform: 'scale(1)'
-            }, 300, function(){
-                $(div).detach();
-                $(div).css('position', '');
-                $(div).css('left', 0);
-                $(div).css('top', 0);
-                $(div).css('z-index', 0);
-                $(div).css('background', '');
-                $(div).css('transform', 'none');
-                $(div).prependTo(recept);
-                paintify(div);
+            }, 600, function(){
+                var toDel = $('.paintArea');
+                var div_inside = document.createElement('div');
+                div_inside.className = "paintArea";
+                div_inside.appendChild(getCanvas().canvas);
+                $(div_inside).prependTo(recept);
+                enableTab($('#rightPanel .writing textarea')[0]);
+                textAreaAdjust($('#rightPanel .writing textarea')[0]);
+                toDel.remove();
+                // div.prependTo(recept);
+                // $scope.$parent.paint = paintify(div);
+                // console.log($scope.paint, $scope);
             });
             return $scope.annotations.pop();
         }
@@ -178,6 +188,7 @@ app.controller('pdf-viewer', function($scope, $http) {
     $scope.stopAnnotation = function(){
         // $scope.$parent.ableToDrawComment = false;
         (stopAnnotation || Function)();
+        stopAnnotation = null;
     };
     var propagate_writingAnnotationMoveSpecific = null;
     $scope.propagate_writingAnnotationMove = function(e){

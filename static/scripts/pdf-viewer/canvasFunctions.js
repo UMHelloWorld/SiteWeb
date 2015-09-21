@@ -34,7 +34,7 @@ window.CanvasFunctions = {
             });
         });
     },
-    drawPdfOn: function(PDF, page, canvas, sourceRectPercent, destRect, initialQuality){
+    drawPdfOn: function(PDF, page, canvas, sourceRectPercent, destRect, initialQuality, anotherCanvas){
         var x   = parseInt(((destRect||{}).x || 0));
         var y   = parseInt(((destRect||{}).y || 0));
         var w   = parseInt(((destRect||{}).w || canvas.width));

@@ -10,6 +10,12 @@ script(src='/static/scripts/pdf-viewer/pdfViewerController.js')
 script(src='/static/scripts/pdf-viewer/toolboxController.js')
 script(src='/static/scripts/pdf-viewer/paint.js')
 script(src='/static/scripts/jquery.transform2d.js')
+script(src='//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML')
+script(type="text/x-mathjax-config").
+	MathJax.Hub.Config({
+	  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+	});
+
 
 div(ng-controller='pdf-app')
 	div#toolbox(ng-controller='toolbox')
@@ -20,22 +26,33 @@ div(ng-controller='pdf-app')
 		.resizer(ng-mousedown='resize($event)', ng-mousemove='resizing && resize($event, true)', ng-mouseup='resizing && finishResize()')
 		div(ng-show='ableToDrawComment').newComment
 			.helper(ng-class='{hide: ableToDrawComment=="composing"}')
-				| Pour poser une nouvelle question, cliquez puis glissez votre souris sur le document afin de dessiner la zone sur laquelle votre question porte.
+				| Pour poser une nouvelle question, $$\sum{cliquez}$$ puis glissez votre souris sur le document afin de dessiner la zone sur laquelle votre question porte.
 			.content
 				.title Poser une nouvelle question
 				.about
-					.tools(ng-init='activeTool = 0', data-activeTool='{{activeTool}}')
-						.tool(data-action='choose-tool', ng-class='{active: activeTool==0}', ng-click='activeTool=0')
+					.tools(ng-init='activeTool = 0; colors = ["black", "black"];')
+						.tool(ng-class='{active: activeTool==0}', ng-style='{color: colors[0]}', ng-click='paint.use(1, "pen", colors[0]);activeTool=0')
 							i.fa.fa-pencil
-						.tool(data-action='choose-tool', ng-class='{active: activeTool==1}', ng-click='activeTool=1')
+						.tool(ng-class='{active: activeTool==1}', ng-style='{color: colors[1]}', ng-click='paint.use(0.3, "highlighter", colors[1]);activeTool=1')
 							i.fa.fa-i-cursor
-						.tool(data-action='choose-tool', ng-class='{active: activeTool==2}', ng-click='activeTool=2')
+						.tool(ng-class='{active: activeTool==2}', ng-click='paint.use(1, "eraser");activeTool=2')
 							i.fa.fa-eraser
-						.tool(data-action='change-params', ng-class='{active: activeTool==3}', ng-click='activeTool=3')
-							i.square
+						.colors
+							each color, k in ['black', '#f1c40f', '#27ae60', '#d35400']
+								.tool(ng-show='activeTool<2', style='color: '+color+';', ng-click='paint.changeColor("'+color+'");colors[activeTool] = "'+color+'"')
+									i.fa.fa-square
+						.select(ng-init='sizes = [["Énorme", 10], ["Gros", 5], ["Moyen", 2], ["Petit", 1]]; currentSize = 2; isOpen=false;')
+							.tool.current(ng-click='isOpen = !isOpen') {{sizes[currentSize][0]}}
+							.dropdown.list-group(ng-show='isOpen')
+								.tool.list-group-item(ng-repeat='(k, size) in sizes', ng-click='paint.changeSize(size[1]);$parent.currentSize=k;$parent.isOpen=false;')
+									i.fa.fa-circle(ng-style='{"font-size": size[1]*1.2}')
+									{{size[0]}}
 					.place
 						div
-				textarea(ng-model='description')
+				.writing
+					.white
+					textarea(ng-model='description', onkeyup='textAreaAdjust(this)', ng-change='descriptionRefresh()')
+					div.render(marked='_description')
 				button(ng-click='sendComment(description)') Poser ma question / remarque !
 	div#leftPanel(ng-mousemove='resizing && resize($event, true, true)', ng-mouseup='resizing && finishResize()')
 		div#pdfArea

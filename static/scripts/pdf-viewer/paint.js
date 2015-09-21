@@ -24,6 +24,7 @@ window.paintify = function(div) {
 	var mouse = {x: 0, y: 0};
 	var last_mouse = {x: 0, y: 0};
 	
+
 	// Pencil Points
 	var ppts = [];
 	
@@ -35,11 +36,13 @@ window.paintify = function(div) {
 	
 	
 	/* Drawing on Paint App */
+	var pencilName = "";
+	var size = 1;
 	tmp_ctx.lineWidth = 1;
 	tmp_ctx.lineJoin = 'round';
 	tmp_ctx.lineCap = 'round';
-	tmp_ctx.strokeStyle = 'blue';
-	tmp_ctx.fillStyle = 'blue';
+	tmp_ctx.strokeStyle = 'black';
+	tmp_ctx.fillStyle = 'black';
 	
 	tmp_canvas.addEventListener('mousedown', function(e) {
 		tmp_canvas.addEventListener('mousemove', onPaint, false);
@@ -63,9 +66,16 @@ window.paintify = function(div) {
 		// Emptying up Pencil Points
 		ppts = [];
 	}, false);
+
+	var erase = function(x, y){
+		var coef = 2;
+		ctx.clearRect(x - size * coef, y - size * coef, size * coef * 2, size * coef * 2);
+	}
 	
 	var onPaint = function() {
-		console.log('paint');
+		if(pencilName=='eraser')
+			return erase(mouse.x, mouse.y);
+
 		// Saving all the points in an array
 		ppts.push({x: mouse.x, y: mouse.y});
 		
@@ -105,4 +115,25 @@ window.paintify = function(div) {
 		
 	};
 	
+	update = function(){
+		tmp_ctx.lineWidth = size * ((pencilName=="highlighter") ? 4 : 1);
+	}
+	var changeColor
+	return {
+		changeColor: (changeColor = function(color){
+			tmp_ctx.strokeStyle = tmp_ctx.fillStyle = color;
+			update();
+		}),
+		changeSize: function(s){
+			size = s;
+			update();
+		},
+		use: function(alpha, name, color){
+			if(color)
+				changeColor(color);
+			pencilName = name;
+			tmp_ctx.globalAlpha = alpha;
+			update();
+		}
+	}
 };

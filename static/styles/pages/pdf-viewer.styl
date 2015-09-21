@@ -60,13 +60,20 @@ pdfWidth = 800px
 	100%
 		opacity 0
 		visibility hidden 
-
+textarea
+	border: none;
+	overflow: auto;
+	outline: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 #rightPanel
 	position absolute
 	top 32px
 	bottom 0px
 	right 0px
 	left pdfWidth
+	overflow auto
 	border-left 2px solid gray
 	padding 25px
 	background-color white
@@ -80,20 +87,48 @@ pdfWidth = 800px
 	.title
 		padding-bottom 20px
 		font-size 28px
-	textarea
-		margin-top 20px
-		margin-bottom 20px
-		padding 20px
-		font-family "Open Sans"
-		height 200px
-		width 100%
-		border-radius 10px
-	button
-		padding 20px
-		width 40%
-		margin auto
-		display block
 	.newComment
+		.writing
+			position relative
+			margin-top 20px
+			margin-bottom 20px
+			border 1px solid rgb(169, 169, 169);
+			border-image-outset 0px
+			border-image-repeat stretch
+			border-image-slice 100%
+			border-image-source none
+			border-image-width 1
+			border-radius 10px
+			overflow-x hidden
+			overflow-y auto
+			height 100px
+			resize vertical
+			max-width 100%
+			min-width 100%
+			background-image url('/static/images/pdf-viewer/bicolor-background.png')
+			background-position center top
+			background-repeat repeat
+			.render, textarea
+				display inline-block
+				padding 10px
+				width 50%
+				height 100%
+				box-sizing border-box
+				border none
+				resize none
+				vertical-align top
+			textarea
+				position relative
+				z-index 1
+				font-family inherit
+				overflow hidden
+			.render
+				overflow visible
+		button
+			padding 20px
+			width 40%
+			margin auto
+			display block
 		.helper
 			position absolute
 			top 0
@@ -105,14 +140,31 @@ pdfWidth = 800px
 			padding 20px
 			opacity 1
 			display block
+			z-index 7
 			background-color white
 			&.hide
 				animation fadeToNone 300ms forwards
 		.content
 			.about
 				.tools
+					position relative
+					z-index 6
 					padding 5px
 					background-color #95a5a6
+					.colors
+						margin-right 5px
+						margin-left 5px
+						magin-right 0px
+						font-size 9px
+						padding 0px
+						width 24px
+						display inline-block
+						vertical-align top
+						.tool
+							padding 2px
+							margin 0px
+							border-radius 1px
+							float left
 					.tool
 						padding 5px
 						padding-left 8px
@@ -125,20 +177,44 @@ pdfWidth = 800px
 							background-color lighten(#95a5a6, 30%)
 						&.active
 							background-color lighten(#95a5a6, 70%)
+					.select
+						display inline-block
+						position relative
+						.dropdown
+							transform scale(0.8)
+							transform-origin left top
+							padding-top 7px
+							padding-bottom 7px
+							position absolute
+							z-index 5
+							left 2px
+							top 30px
+							width 120px
+							background-color #95a5a6
+							.tool
+								padding-left 3px
+								i
+									width 24px
+									text-align center
+									vertical-align middle
+								display block
 				margin 3px
-				text-align center
 				border 1px solid #CCC
 				.place
+					text-align center
 					padding 12px
-					div
-						canvas:first-child
-							border 1px dashed #CCC
+					> div
+						div
+							display inline-block
+							canvas:first-child
+								border 1px dashed #CCC
 #leftPanel
 	position absolute
 	top 32px
 	left 0px
 	bottom 0px
-	overflow scroll
+	overflow-y scroll
+	overflow-x hidden
 	width pdfWidth
 	#pdfArea
 		position relative

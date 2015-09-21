@@ -1,4 +1,14 @@
-var app = angular.module('app',[]);
+var app = angular.module('app',['hc.marked']);
+
+app.config(['markedProvider', function(markedProvider) {
+	markedProvider.setOptions({
+		gfm: true,
+		tables: true,
+		highlight: function (code) {
+			return hljs.highlightAuto(code).value;
+		}
+	});
+}]);
 
 app.controller('documents', function($scope, $http) {
 	
