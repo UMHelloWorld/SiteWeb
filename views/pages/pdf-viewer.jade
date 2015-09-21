@@ -3,37 +3,68 @@ script(src="/static/scripts/pdf/pdf.js")
 script(src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/2.2.0/math.min.js")
 script.
 	PDFJS.workerSrc = '/static/scripts/pdf/pdf.worker.js';
-script(src='/static/scripts/pdf-viewer.js')
+//- script(src='/static/scripts/pdf-viewer.js')
+script(src='/static/scripts/pdf-viewer/canvasFunctions.js')
+script(src='/static/scripts/pdf-viewer/pdfAppController.js')
+script(src='/static/scripts/pdf-viewer/pdfViewerController.js')
+script(src='/static/scripts/pdf-viewer/toolboxController.js')
+script(src='/static/scripts/pdf-viewer/paint.js')
+script(src='/static/scripts/jquery.transform2d.js')
 
 div(ng-controller='pdf-app')
 	div#toolbox(ng-controller='toolbox')
-		.item(ng-repeat='action in actions', ng-click='press(action)', ng-class='{active: action.pressed}')
+		.item(ng-repeat='action in actions', ng-click='press(action)', ng-class='{active: (isFunction(action.pressed) ? action.pressed() : action.pressed)}')
 			i(class='fa fa-{{action.icon}}')
 			span {{action.label}}
-	div#rightPanel(ng-controller='right-panel')
-		div(ng-show='mode=="compose"', ng-init='description = "";')
-			.title Poser une nouvelle question
-			.here
-			textarea(ng-model='description')
-			button(ng-click='sendComment(description)') Poser ma question / remarque !
-	div#pdfArea
-		div#pdfPlace(ng-controller='pdf-viewer')
-			canvas#pdf
-			canvas#makeComment(ng-class='{ableToDrawComment: $parent.ableToDrawComment}')
-			div.comment(
-					ng-repeat='area in areas',
-					ng-if='displayComments && (+currentPdfPage==+area.page)',
-					style='top: {{area.from * dim.h}}px; height: {{area.to * dim.h - area.from * dim.h}}px;'
-				)
-				.content
-					//- .stuff
-						.content
-							div(ng-repeat='(k, comment) in area.list',
-								ng-mouseover='drawComment(comment)',
-								ng-mouseout='clear()')
-								| {{+k+1}}) {{(comment.description || "").substr(0, 20)}}...
-					.label(
-						ng-mouseover='draw(area, "rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.13)")',
-						ng-mouseout='clear()'
+	div#rightPanel(ng-controller='right-panel', ng-mousemove='resizing && resize($event, true)', ng-mouseup='resizing && finishResize()')
+		.resizer(ng-mousedown='resize($event)', ng-mousemove='resizing && resize($event, true)', ng-mouseup='resizing && finishResize()')
+		div(ng-show='ableToDrawComment').newComment
+			.helper(ng-class='{hide: ableToDrawComment=="composing"}')
+				| Pour poser une nouvelle question, cliquez puis glissez votre souris sur le document afin de dessiner la zone sur laquelle votre question porte.
+			.content
+				.title Poser une nouvelle question
+				.about
+					.tools(ng-init='activeTool = 0', data-activeTool='{{activeTool}}')
+						.tool(data-action='choose-tool', ng-class='{active: activeTool==0}', ng-click='activeTool=0')
+							i.fa.fa-pencil
+						.tool(data-action='choose-tool', ng-class='{active: activeTool==1}', ng-click='activeTool=1')
+							i.fa.fa-i-cursor
+						.tool(data-action='choose-tool', ng-class='{active: activeTool==2}', ng-click='activeTool=2')
+							i.fa.fa-eraser
+						.tool(data-action='change-params', ng-class='{active: activeTool==3}', ng-click='activeTool=3')
+							i.square
+					.place
+						div
+				textarea(ng-model='description')
+				button(ng-click='sendComment(description)') Poser ma question / remarque !
+	div#leftPanel(ng-mousemove='resizing && resize($event, true, true)', ng-mouseup='resizing && finishResize()')
+		div#pdfArea
+			div#pdfPlace(ng-controller='pdf-viewer')
+				canvas#pdf(ng-mousedown='(ableToDrawComment===true) && beginAnnotation($event)', ng-mousemove='writingAnnotationMove($event)', ng-mouseup='ableToDrawComment===true && stopAnnotation()')
+				//- canvas#makeComment(ng-class='{ableToDrawComment: $parent.ableToDrawComment}')
+				#annotations
+					div.annotation(
+							ng-repeat='annotation in annotations | filter:{show: true}',
+							ng-style='getStyleForAnnotation(annotation)',
+							ng-show='!$parent.ableToDrawComment || annotation.newOne',
+							ng-mousemove='propagate_writingAnnotationMove($event)',
+							ng-mousedown='$parent.ableToDrawComment && annotation.newOne && stopAnnotation()',
+							ng-mouseup='$parent.ableToDrawComment && annotation.newOne && stopAnnotation()'
+						)
+				div.comment(
+						ng-repeat='area in areas',
+						ng-if='displayComments && (+currentPdfPage==+area.page)',
+						style='top: {{area.from * 100}}%; height: {{(area.to - area.from)*100}}%;'
 					)
-						{{area.list.length}}
+					.content
+						//- .stuff
+							.content
+								div(ng-repeat='(k, comment) in area.list',
+									ng-mouseover='drawComment(comment)',
+									ng-mouseout='clear()')
+									| {{+k+1}}) {{(comment.description || "").substr(0, 20)}}...
+						.label(
+							ng-mouseover='draw(area, "rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.13)")',
+							ng-mouseout='clear()'
+						)
+							{{area.list.length}}

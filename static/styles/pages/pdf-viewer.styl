@@ -1,18 +1,30 @@
-#content
-	overflow visible!important
-#page
-	top 80px!important
-	background-image none!important
-#content
-	position relative!important
-	width 100%!important
-	#pdfArea #pdfPlace
-		margin 0px!important
-
+body
+	div#fixedPartHeader
+		position absolute
+		top 0px
+		left 0px
+		right 0px
+	div#page
+		position absolute
+		top 80px
+		left 0px
+		bottom 0px
+		right 0px
+		background-image none
+		div#content
+			width 100%!important
+			div#pdfArea div#pdfPlace
+				margin 0px
+#annotations
+	.annotation
+		position absolute
+		background-color alpha(green, 0.1)
+		border 1px solid alpha(green, 0.3)
+pdfWidth = 800px
 #toolbox
 	background-color #e67e22
-	position fixed
-	top 80px
+	position absolute
+	top 0px
 	left 0px
 	padding-left 10px
 	height 32px
@@ -38,23 +50,36 @@
 		&:hover
 			transition background-color 100ms linear
 			background-color alpha(white, 0.5)
+@keyframes fadeToNone
+	0%
+		visibility visible
+		opacity 1
+	99%
+		visibility visible
+		opacity 0
+	100%
+		opacity 0
+		visibility hidden 
+
 #rightPanel
-	position fixed
-	top 80px + 32px
+	position absolute
+	top 32px
 	bottom 0px
 	right 0px
-	left 800px + 25px * 2
+	left pdfWidth
 	border-left 2px solid gray
 	padding 25px
 	background-color white
 	z-index 1000
+	.resizer
+		position absolute
+		left -5px
+		width 12px
+		top 0px
+		bottom 0px
 	.title
 		padding-bottom 20px
 		font-size 28px
-	.here
-		text-align center
-		> div
-			display inline-block
 	textarea
 		margin-top 20px
 		margin-bottom 20px
@@ -68,93 +93,124 @@
 		width 40%
 		margin auto
 		display block
-	.toolbox-draw
-		background-color #AAA
-		padding 5px
-		.tool-pencil
-			display inline-block
-			border-radius 50%
-			width 14px
-			height 14px
-			margin 5px
-			&.yellow
-				background-color #f39c12
-			&[data-color='black']
-				background-color black
-			&[data-color='red']
-				background-color #e74c3c
-			&[data-color='erase']
-				background-color pink
-				border-radius 20%
-			&.small
-				width 7px
-				height 7px
-				margin 8px
-#pdfArea
-	position relative
-	top 32px
-	padding 25px
-	#pdfPlace
-		width 800px
-		margin auto
-		box-shadow 0px 0px 6px #CCC
-		position relative
-		#pdf
-			background-color white
-		#makeComment
+	.newComment
+		.helper
+			position absolute
+			top 0
+			left 0
 			width 100%
-			position absolute
-			top 0px
-			left 0px
-			z-index 10
-			&.ableToDrawComment
-				cursor crosshair
-		.comment
-			position absolute
-			left 0px
-			width 30px
-			z-index 100
-			opacity 0.4
-			> .content
-				height 100%
-				border-left 0px solid #e67e22
-				position relative
-				.stuff
-					position absolute
-					left -150px
-					width 150px
-					top 0px
+			height 100%
+			text-align center
+			font-size 30px
+			padding 20px
+			opacity 1
+			display block
+			background-color white
+			&.hide
+				animation fadeToNone 300ms forwards
+		.content
+			.about
+				.tools
+					padding 5px
+					background-color #95a5a6
+					.tool
+						padding 5px
+						padding-left 8px
+						padding-right 8px
+						margin-right 5px
+						margin-left 5px
+						display inline-block
+						border-radius 4px
+						&:hover
+							background-color lighten(#95a5a6, 30%)
+						&.active
+							background-color lighten(#95a5a6, 70%)
+				margin 3px
+				text-align center
+				border 1px solid #CCC
+				.place
+					padding 12px
+					div
+						canvas:first-child
+							border 1px dashed #CCC
+#leftPanel
+	position absolute
+	top 32px
+	left 0px
+	bottom 0px
+	overflow scroll
+	width pdfWidth
+	#pdfArea
+		position relative
+		padding 25px
+		#pdfPlace
+			// width 800px
+			margin auto
+			box-shadow 0px 0px 6px #CCC
+			position relative
+			#pdf
+				background-color white
+			#makeComment
+				width 100%
+				position absolute
+				top 0px
+				left 0px
+				z-index 10
+				&.ableToDrawComment
+					cursor crosshair
+			.comment
+				position absolute
+				left 0px
+				width 30px
+				z-index 100
+				opacity 0.4
+				> .content
 					height 100%
-					overflow hidden
-					.content
-						padding 3px
-						background-color #e67e22
-						position relative
-						left 150px
+					border-left 0px solid #e67e22
+					position relative
+					.stuff
+						position absolute
+						left -150px
 						width 150px
+						top 0px
 						height 100%
-						font-size 10px
-						cursor default
-						overflow auto
-						> div
+						overflow hidden
+						.content
 							padding 3px
-							&:hover
-								color white
-				.label
-					padding-top 3px
-					width 16px
-					height 16px
-					background-color #e67e22
-					text-align center
-					color white
-					font-size 10px
-			&:hover
-				transition opacity linear 100ms
-				opacity 1
-				.content
-					transition border-left linear 100ms
-					border-left 2px solid #e67e22
-				.stuff
+							background-color #e67e22
+							position relative
+							left 150px
+							width 150px
+							height 100%
+							font-size 10px
+							cursor default
+							overflow auto
+							> div
+								padding 3px
+								&:hover
+									color white
+					.label
+						padding-top 3px
+						width 16px
+						height 16px
+						background-color #e67e22
+						text-align center
+						color white
+						font-size 10px
+				&:hover
+					transition opacity linear 100ms
+					opacity 1
 					.content
-						transition left linear 100ms
-						left 0px
+						transition border-left linear 100ms
+						border-left 2px solid #e67e22
+					.stuff
+						.content
+							transition left linear 100ms
+							left 0px
+
+.paintArea
+	position relative
+	canvas:nth-child(n+2)
+		position absolute
+		top 0
+		left 0
