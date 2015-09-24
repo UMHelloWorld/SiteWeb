@@ -17,6 +17,10 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+var mysql = require('mysql');
+var connection = mysql.createConnection(JSON.parse(require('fs').readFileSync('config-mysql.json').toString()));
+connection.connect();
+
 //Pour les requêtes POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -33,7 +37,7 @@ var pages = [{
 	icon: 'home',
 	title: 'Accueil'
 }, {
-	url: 'calender',
+	url: 'calendar',
 	icon: 'calendar',
 	title: 'Planning'
 }, {
@@ -43,12 +47,14 @@ var pages = [{
 }, {
 	url: 'tutoring',
 	icon: 'graduation-cap',
-	title: 'Tutorat'
+	title: 'Tutorat & entraide'
 }, {
 	url: 'sign-in',
 	icon: 'sign-in',
 	title: 'Connexion'
 }];
+
+app.use('/api', require('./api/main.js')(express));
 
 app.get('/', function (req, res) {
 	res.redirect("/index");
