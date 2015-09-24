@@ -2,7 +2,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
       watch: {
         scripts: {
-          files: ['**/*.es6.js'],
+          files: ['./**/*.es6.js'],
           tasks: ['default'],
           options: {
             spawn:false
@@ -23,7 +23,8 @@ module.exports = function(grunt) {
         dist: {
             files: [{
               expand: true,
-              src: '**/*.es6.js',
+              cwd: './',
+              src: ['**/*.es6.js'],
               dest: './',
               ext: '.js',
             }]
