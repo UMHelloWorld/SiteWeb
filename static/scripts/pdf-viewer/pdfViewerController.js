@@ -1,13 +1,40 @@
-app.controller('pdf-viewer', function($scope, $http) {
+
+
+
+app.controller('pdf-viewer', function($scope, $http, annotations) {
     window.debugScope = $scope;
+
+
+    $scope.filterAnnotationsToShow = function(annotations) {
+        return annotations.show || annotations._show;
+    };
+
+    $scope.selectedArea = -1;
+    $scope.$parent.unselectArea = function(){
+        $scope.selectedArea = -1;
+    }
+    $scope.$parent.isAreaUnselected = function(){
+        return $scope.selectedArea==-1;
+    }
+    $scope.$watch('selectedArea', function(){
+        var affectShow = function(toValue){return function(o){o.show = toValue}};
+        $scope.annotations.forEach(affectShow(false));
+        if($scope.selectedArea==-1)
+            return;
+        (($scope.areas[$scope.selectedArea]||[]).list||[]).forEach(affectShow(true));
+    });
 
     $scope.$parent.currentPdfPage;
     var PdfSource;
     var DefaultQuality = 1.4;
 
+    var lastRender = -1;
     var draw = function(){
-        if($scope.$parent.currentPdfPage<0)
-            return;
+        if($scope.$parent.currentPdfPage<1)
+            $scope.$parent.currentPdfPage = 1;
+        if($scope.$parent.currentPdfPage>PdfSource.numPages)
+            $scope.$parent.currentPdfPage = PdfSource.numPages;
+        lastRender = $scope.$parent.currentPdfPage;
         CanvasFunctions.makePdfCanvas(PdfSource, $scope.$parent.currentPdfPage, +$("#pdfPlace").width(), DefaultQuality, $("#pdf")[0], function(o){
             o.render(Function);
         });
@@ -21,16 +48,8 @@ app.controller('pdf-viewer', function($scope, $http) {
         $scope.safeApply();
     });
 
-    $scope.annotations = [/*{
-        position: {
-            relSX: 0.2,
-            relSY: 0.2,
-            relEX: 0.4,
-            relEY: 0.3,
-        },
-        page: 1,
-        show: true
-    }*/];
+    $scope.annotations = annotations;
+    
     $scope.areas = [];
     var buildAreas = function(){
         while($scope.areas.length)
@@ -38,7 +57,8 @@ app.controller('pdf-viewer', function($scope, $http) {
 
         $scope.annotations.forEach(function(o){
             $scope.areas.push({
-                position: {relSX: o.relSX, relSY: o.relSY, relEX: o.relEX, relEY: o.relEY},
+                relSX: o.position.relSX, relSY: o.position.relSY, relEX: o.position.relEX, relEY: o.position.relEY,
+                list: [o],
                 page: o.page
             });
         });
@@ -80,6 +100,7 @@ app.controller('pdf-viewer', function($scope, $http) {
         input._cache.top     = (input.position.relSY * 100)+'%';
         input._cache.width   = ((input.position.relEX-input.position.relSX) * 100)+'%';
         input._cache.height  = ((input.position.relEY-input.position.relSY) * 100)+'%';
+        input._cache.opacity = (input._show || input.newOne) ? 1 : 0.4;
         return input._cache;
     }
     var transformAnnotationBeingWriten = function(cache, real, doNotConvertPercent){
@@ -135,17 +156,20 @@ app.controller('pdf-viewer', function($scope, $http) {
             var width = parseInt((annotation.position.relEX - annotation.position.relSX) * o.width());
             var height = parseInt((annotation.position.relEY - annotation.position.relSY) * o.height());
 
-            var getCanvas = function(){
+            var getCanvas = function(callback){
                 var myCanvas = CanvasFunctions.makeCanvas(width, height, nomralWidthCalc, DefaultQuality);
                 CanvasFunctions.drawPdfOn(PdfSource, $scope.$parent.currentPdfPage, myCanvas.canvas, {
                     x: annotation.position.relSX,
                     y: annotation.position.relSY,
                     w: (annotation.position.relEX - annotation.position.relSX),
                     h: (annotation.position.relEY - annotation.position.relSY)
-                }, {}, DefaultQuality);
+                }, {}, DefaultQuality, callback);
                 return myCanvas;
             }
-            myCanvas = getCanvas();
+            var oAnnot = $scope.annotations.pop();
+            myCanvas = getCanvas(function(canvas){
+                oAnnot.image = canvas.toDataURL();
+            });
 
             var div = document.createElement('div');
             div.className = "paintArea";
@@ -181,7 +205,8 @@ app.controller('pdf-viewer', function($scope, $http) {
                 $scope.$parent.paint = paintify(div_inside);
                 // console.log($scope.paint, $scope);
             });
-            return $scope.annotations.pop();
+            oAnnot.page = $scope.$parent.currentPdfPage;
+            $scope.annotations.temp = oAnnot;
         }
     }
     $scope.stopAnnotation = function(){
@@ -198,117 +223,3 @@ app.controller('pdf-viewer', function($scope, $http) {
     $scope.safeApply = function(fn) {var phase = this.$root.$$phase;if(phase == '$apply' || phase == '$digest') { if(fn && (typeof(fn) === 'function')) {fn();} } else {this.$apply(fn);}};
 });
 
-
-
-
-
-
-
-// $(function(){
-//     var isActive = false;
-//     var start = {x: 0, y: 0};
-//     var end = {x: 0, y: 0};
-//     var grid = {w: 36, h: 100};
-//     var needUpdate = false;
-//     var routine = null;
-//     $('#makeComment').click(function(e){
-//         console.log("XXXXXX");
-//         isActive = false;
-//         ctx.clearRect(0, 0, canvas.width, canvas.height);
-//         getRealCoords();
-//         if(Math.abs(start.y - end.y)<5 && Math.abs(end.x - start.x)<5)
-//             return;
-//         var comment = {
-//             from: start.realY / dim.h,
-//             to: end.realY / dim.h,
-//             startX: start.realX / dim.w,
-//             endX: end.realX / dim.w,
-//             // img: ctx.getImageData(start.realX, start.realY, end.realX - start.realX, end.realY - start.realY),
-//             dim: [end.realX - start.realX, end.realY - start.realY],
-//             visu: [start.realX, start.realY]
-//         };
-//         scopePdfApp.writeComment(comment);
-//         // addComment(comment);
-//         clearInterval(routine);
-//         ctx.clearRect(0, 0, canvas.width, canvas.height);
-//     });
-//     $('#makeComment').mousedown(function(e){
-//         if(!scopePdfApp.ableToDrawComment)
-//             return;
-//         start.x = +e.offsetX;
-//         start.y = +e.offsetY;
-//         end.x   = +e.offsetX;
-//         end.y   = +e.offsetY;
-//         isActive = true;
-//         console.log('here i am');
-//         routine = setInterval(draw, 1000/30);
-//         return false;
-//     });
-//     $('#makeComment').mousemove(function(e){
-//         if(!isActive)
-//             return false;
-//         if(+e.offsetX==end.x && +e.offsetY==end.y)
-//             return false;
-//         end.x   = +e.offsetX;
-//         end.y   = +e.offsetY;
-//         needUpdate = true;
-//         return false;
-//     });
-
-//     var getRealCoords = function(){
-//         var deltaX = canvas.width/grid.w;
-//         var deltaY = canvas.height/grid.h;
-//         var c = {
-//             sx: (start.x <= end.x) ? start.x : end.x,
-//             sy: (start.y <= end.y) ? start.y : end.y,
-//             ex: (start.x <= end.x) ? end.x : start.x,
-//             ey: (start.y <= end.y) ? end.y : start.y
-//         }
-//         start.realX = Math.floor(c.sx/deltaX) * deltaX;
-//         start.realY = Math.floor(c.sy/deltaY) * deltaY;
-//         end.realX = Math.ceil(c.ex/deltaX) * deltaX;
-//         end.realY = Math.ceil(c.ey/deltaY) * deltaY;
-//     }
-
-//     var canvas = document.getElementById('makeComment');
-//     var ctx = canvas.getContext('2d');
-//     var drawAZone = function(startX,startY,endX,endY, fill, stroke){
-//         ctx.fillStyle = fill || 'rgba(0, 200, 0, 0.30)';
-//         ctx.strokeStyle = stroke || 'rgba(0, 0, 0, 0.30)';
-//         ctx.clearRect(startX, startY, endX-startX, endY-startY);
-//         ctx.fillRect(startX, startY, endX-startX, endY-startY);
-//         ctx.strokeRect(startX, startY, endX-startX, endY-startY);
-//     }
-//     var draw = function(){
-//         if(!needUpdate)
-//             return;
-//         needUpdate = false;
-//         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//         getRealCoords();
-
-//         // ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-//         // for(var i=0; i<canvas.height; i+=deltaX)
-//         //     ctx.fillRect(0, i+deltaX/2, canvas.width, 1);
-//         // for(var i=0; i<canvas.width; i+=deltaY)
-//         //     ctx.fillRect(i+deltaY/2, 0, 1, canvas.height);
-
-
-//         // ctx.fillStyle = 'rgba(0, 200, 0, 0.15)';
-//         // ctx.fillRect(start.x, start.y, end.x-start.x, end.y-start.y);
-
-//         drawAZone(start.realX,start.realY,end.realX,end.realY);
-//     }
-//     scopePdfViewer.clear = function(){
-//         ctx.clearRect(0, 0, canvas.width, canvas.height);
-//     }
-//     scopePdfViewer.drawComment = function(o, colorFill, colorStroke){
-//         drawAZone(o.startX * dim.w, o.from * dim.h, o.endX * dim.w, o.to * dim.h, colorFill, colorStroke);
-//         return false;
-//     };
-//     scopePdfViewer.draw = function(area, colorFill, colorStroke){
-//         area.list.forEach(function(o){
-//             scopePdfViewer.drawComment(o, colorFill, colorStroke);
-//         });
-//     }
-// })

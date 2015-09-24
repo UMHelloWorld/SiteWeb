@@ -18,6 +18,8 @@ app.controller('toolbox', function($scope, $http) {
             },
             changeState: function(action){
                 $scope.$parent.ableToDrawComment = !$scope.$parent.ableToDrawComment;
+                if($scope.$parent.ableToDrawComment)
+                    $scope.$parent.unselectArea();
             }
         },
         {
@@ -36,7 +38,6 @@ app.controller('toolbox', function($scope, $http) {
             pressed: null,
             onPress: function(action){
                 $scope.$parent.currentPdfPage--;
-                draw($scope.$parent.currentPdfPage);
             }
         },
         {
@@ -45,7 +46,6 @@ app.controller('toolbox', function($scope, $http) {
             pressed: null,
             onPress: function(action){
                 $scope.$parent.currentPdfPage++;
-                draw($scope.$parent.currentPdfPage);
             }
         }
     ];

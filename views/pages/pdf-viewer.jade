@@ -16,7 +16,6 @@ script(type="text/x-mathjax-config").
 	  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
 	});
 
-
 div(ng-controller='pdf-app')
 	div#toolbox(ng-controller='toolbox')
 		.item(ng-repeat='action in actions', ng-click='press(action)', ng-class='{active: (isFunction(action.pressed) ? action.pressed() : action.pressed)}')
@@ -24,6 +23,17 @@ div(ng-controller='pdf-app')
 			span {{action.label}}
 	div#rightPanel(ng-controller='right-panel', ng-mousemove='resizing && resize($event, true)', ng-mouseup='resizing && finishResize()')
 		.resizer(ng-mousedown='resize($event)', ng-mousemove='resizing && resize($event, true)', ng-mouseup='resizing && finishResize()')
+		div(ng-show='!ableToDrawComment', ng-controller='annotations-details').annotations
+			h1(ng-show='isThereAnnotationForPage(currentPdfPage)') Liste des questions sur la page {{currentPdfPage}}
+			h1(style='text-align: center;', ng-show='!isThereAnnotationForPage(currentPdfPage)') Pas de questions pour le moment <i class='fa fa-frown-o'></i>
+			div(ng-repeat='annotation in annotations | filter:{page: currentPdfPage} | orderBy : "-show"', ng-mouseover='annotation._show = true;', ng-mouseout='annotation._show = false;', ng-class='{emph: isAreaUnselected() || annotation._show || annotation.show}').annotation
+				div.description(marked='annotation.description')
+				.imageWrapper(ng-style='{"background-image": "url("+annotation.image+")"}')
+				.details
+					.content
+						span Par <em>{{annotation.author.name}}</em> le <em>{{annotation.when | date:'dd/MM/YY à hh:mm'}}</em>
+						span {{annotations.responses}} réponse{{(annotations.anwsers>=1) ? "s" : ""}}
+						span (dernière : il y a {{(currentTime - annotations.lastAnwsers.when)/(1000*60)}} min)
 		div(ng-show='ableToDrawComment').newComment
 			.helper(ng-class='{hide: ableToDrawComment=="composing"}')
 				| Pour poser une nouvelle question, cliquez puis glissez votre souris sur le document afin de dessiner la zone sur laquelle votre question porte.
@@ -46,12 +56,19 @@ div(ng-controller='pdf-app')
 							.dropdown.list-group(ng-show='isOpen')
 								.tool.list-group-item(ng-repeat='(k, size) in sizes', ng-click='paint.changeSize(size[1]);$parent.currentSize=k;$parent.isOpen=false;')
 									i.fa.fa-circle(ng-style='{"font-size": size[1]*1.2}')
-									{{size[0]}}
+									|{{size[0]}}
 					.place
 						div
+				.help
+					| Dans votre message, il est possible d'utiliser 
+					a(href='https://openclassrooms.com/courses/redigez-en-markdown') Markdown
+					|  et 
+					a(href='/static/other/LaTeX-math-doc.pdf') LaTeX
+					|.
+					| La zone de droite prévisualise votre message.
 				.writing
 					.white
-					textarea(ng-model='description', onkeyup='textAreaAdjust(this)', ng-change='descriptionRefresh()')
+					textarea(placeholder="Tapez votre question ici",ng-model='description', onkeyup='textAreaAdjust(this)', ng-change='descriptionRefresh()')
 					div.render(marked='_description')
 				button(ng-click='sendComment(description)') Poser ma question / remarque !
 	div#leftPanel(ng-mousemove='resizing && resize($event, true, true)', ng-mouseup='resizing && finishResize()')
@@ -61,7 +78,7 @@ div(ng-controller='pdf-app')
 				//- canvas#makeComment(ng-class='{ableToDrawComment: $parent.ableToDrawComment}')
 				#annotations
 					div.annotation(
-							ng-repeat='annotation in annotations | filter:{show: true}',
+							ng-repeat='annotation in annotations | filter:filterAnnotationsToShow',
 							ng-style='getStyleForAnnotation(annotation)',
 							ng-show='!$parent.ableToDrawComment || annotation.newOne',
 							ng-mousemove='propagate_writingAnnotationMove($event)',
@@ -69,19 +86,15 @@ div(ng-controller='pdf-app')
 							ng-mouseup='$parent.ableToDrawComment && annotation.newOne && stopAnnotation()'
 						)
 				div.comment(
-						ng-repeat='area in areas',
+						ng-repeat='(k,area) in areas',
 						ng-if='displayComments && (+currentPdfPage==+area.page)',
-						style='top: {{area.from * 100}}%; height: {{(area.to - area.from)*100}}%;'
+						ng-click='$parent.$parent.selectedArea = (selectedArea==k) ? -1 : k;',
+						ng-style='{top: area.relSY * 100 + "%", height: (area.relEY - area.relSY)*100 + "%"}',
+						ng-class='{active: selectedArea==k}'
 					)
 					.content
-						//- .stuff
-							.content
-								div(ng-repeat='(k, comment) in area.list',
-									ng-mouseover='drawComment(comment)',
-									ng-mouseout='clear()')
-									| {{+k+1}}) {{(comment.description || "").substr(0, 20)}}...
 						.label(
 							ng-mouseover='draw(area, "rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.13)")',
 							ng-mouseout='clear()'
 						)
-							{{area.list.length}}
+							|{{area.list.length}}

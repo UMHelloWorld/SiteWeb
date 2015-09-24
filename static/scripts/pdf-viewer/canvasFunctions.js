@@ -34,7 +34,7 @@ window.CanvasFunctions = {
             });
         });
     },
-    drawPdfOn: function(PDF, page, canvas, sourceRectPercent, destRect, initialQuality, anotherCanvas){
+    drawPdfOn: function(PDF, page, canvas, sourceRectPercent, destRect, initialQuality, callback){
         var x   = parseInt(((destRect||{}).x || 0));
         var y   = parseInt(((destRect||{}).y || 0));
         var w   = parseInt(((destRect||{}).w || canvas.width));
@@ -48,6 +48,7 @@ window.CanvasFunctions = {
                 var sh  = parseInt(((sourceRectPercent||{}).h || 1) * PDF.canvas.height);
                 console.log(PDF, sx, sy, sw, sh, x, y, w, h);
                 ctx.drawImage(PDF.canvas, sx, sy, sw, sh, x, y, w, h);
+                (callback||Function)(canvas);
             });
         });
     }
