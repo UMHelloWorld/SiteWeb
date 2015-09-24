@@ -1,5 +1,6 @@
 #forum
 	h1 Forum d'entraide d'Hello World
+	//- | #{dbg}
 	.bg-white
 		.head
 			.top
@@ -19,23 +20,23 @@
 				.tag Question
 				.tag Math
 				.tag Info
-		.question
-			.numbers
-				.votes 1
-				.answers 4
-				.views 62
-			.content
-				a.title(href='#') Puissance d'une matrice
-				.tags
-					.tag HLMA501
-					.tag Math
-					.tag Matrice
-				.info
-					.time
-						| ajouté il y a 2 minutes
-					a(href='/users/toDo_userId').who
-						| Jean Paul
-					.reputation 7862
+		each topic in params.topics
+			.question
+				.numbers
+					.votes 1
+					.answers 4
+					.views 62
+				.content
+					a.title(href='#')= topic.title
+					.tags
+						.tag HLMA501
+						.tag Math
+						.tag Matrice
+					.info
+						.time
+							| ajouté il y a 2 minutes
+						a(href='/users/toDo_userId').who= topic.who
+						.reputation 7862
 		.question
 			.numbers
 				.votes 1

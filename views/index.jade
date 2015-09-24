@@ -26,10 +26,10 @@ html
 			.content
 				img#logoSmall(src='/static/images/header/logo.png')
 				div.links
-					each page in pages
-						a.link(class=(page.isActive?'active':''), href='/'+page.url)
-							i.fa(class='fa-'+page.icon)
-							span= page.title
+					each _page in pages
+						a.link(class=((page==_page.url)?'active':''), href='/'+_page.url)
+							i.fa(class='fa-'+_page.icon)
+							span= _page.title
 		div#page
 			div#content(nd-controller=page)
 				if page=="index"

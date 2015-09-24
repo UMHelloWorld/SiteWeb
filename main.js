@@ -60,20 +60,52 @@ app.get('/', function (req, res) {
 	res.redirect("/index");
 });
 
-app.get('/:page', function (req, res) {
-	if (pages.find(function (page) {
-		return page.url == req.params.page;
-	})) res.render("index.jade", {
+var queries = {
+	getTopics: require('fs').readFileSync('./sql/getTopics.sql').toString()
+};
+
+app.get('/forum/', function (req, res) {
+	console.log(queries.getTopics);
+	connection.query(queries.getTopics, function (err, results) {
+		console.log(results);
+		render(req, res, 'tutoring', {
+			showForum: true,
+			showTopic: true,
+			topics: results.map(function (r) {
+				return {
+					id: +r.id,
+					annotationId: +r.annotationId,
+					userId: +r.userId,
+					title: r.title,
+					solved: Boolean(r.solved),
+					validAnswer: Boolean(r.validAnswer)
+				};
+			})
+		});
+	});
+});
+
+function render(req, res, page, params) {
+	res.render("index.jade", {
 		pages: pages.map(function (page) {
 			return {
 				url: page.url,
 				title: page.title,
 				icon: page.icon,
-				isActive: page.url == req.params.page
+				isActive: page.url == page
 			};
 		}),
-		page: req.params.page
-	});else res.redirect("/index");
+		page: page,
+		params: params || {},
+		dbg: JSON.stringify(params)
+	});
+}
+
+app.get('/:page', function (req, res) {
+	if (req.params.page == 'tutoring') return res.redirect('/forum');
+	if (pages.find(function (page) {
+		return page.url == req.params.page;
+	})) render(req, res, req.params.page);else res.redirect("/index");
 });
 
 app.listen(5765);

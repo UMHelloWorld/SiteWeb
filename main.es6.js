@@ -64,21 +64,54 @@ app.get('/', (req, res) => {
 	res.redirect("/index");
 });
 
+var queries = {
+	getTopics: require('fs').readFileSync('./sql/getTopics.sql').toString()
+};
+
+app.get('/forum/', (req, res) => {
+	console.log(queries.getTopics);
+	connection.query(queries.getTopics, function(err, results){
+		console.log(results);
+		render(req, res, 'tutoring', {
+			showForum: true,
+			showTopic: true,
+			topics: results.map(r => 
+				({
+					id: +r.id,
+					annotationId: +r.annotationId,
+					userId: +r.userId,
+					title: r.title,
+					solved: Boolean(r.solved),
+					validAnswer: Boolean(r.validAnswer)
+				})
+			)
+		});
+	});
+});
+
+function render(req, res, page, params){
+	res.render("index.jade", 
+		{
+			pages: pages.map(
+				(page) => ({
+					url: page.url,
+					title: page.title,
+					icon: page.icon,
+					isActive: (page.url==page)
+				})
+			),
+			page: page,
+			params: params || {},
+			dbg: JSON.stringify(params)
+		}
+	);
+}
+
 app.get('/:page', (req, res) => {
+	if(req.params.page=='tutoring')
+		return res.redirect('/forum');
 	if(pages.find((page) => page.url==req.params.page))
-		res.render("index.jade", 
-				{
-					pages: pages.map(
-						(page) => ({
-							url: page.url,
-							title: page.title,
-							icon: page.icon,
-							isActive: (page.url==req.params.page)
-						})
-					),
-					page: req.params.page
-				}
-			);
+		render(req, res, req.params.page);
 	else
 		res.redirect("/index");
 });
