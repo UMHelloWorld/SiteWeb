@@ -1,9 +1,21 @@
+#content {
+  width: auto !important;
+}
 #forum {
   margin-bottom: 400px;
 }
 #forum h1 {
   font-size: 26px;
   padding: 30px;
+  width: 960px;
+  margin: auto;
+}
+#forum .bg-white {
+  box-shadow: 0px 0px 2px #ddd;
+  width: 960px;
+  padding: 20px;
+  background-color: #fff;
+  margin: auto;
 }
 #forum .head > .tags {
   padding: 10px;
@@ -73,11 +85,12 @@
 }
 #forum .question {
   border-bottom: 1px solid #ddd;
+  clear: both;
 }
 #forum .question .numbers {
   width: 150px;
-  display: inline-block;
-  padding-top: 15px;
+  float: left;
+  padding-top: 24px;
 }
 #forum .question .numbers > div {
   display: inline-block;
@@ -101,8 +114,8 @@
   content: 'vues';
 }
 #forum .question .content {
-  width: 810px;
-  display: inline-block;
+  margin-left: 150px;
+  display: block;
   padding: 10px;
 }
 #forum .question .content .title {

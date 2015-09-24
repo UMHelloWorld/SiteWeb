@@ -1,8 +1,18 @@
+#content
+	width auto!important
 #forum
 	margin-bottom 400px
 	h1
 		font-size 26px
 		padding 30px
+		width 960px
+		margin auto
+	.bg-white
+		box-shadow 0px 0px 2px #DDD
+		width 960px
+		padding 20px
+		background-color white
+		margin auto
 	.head
 		> .tags
 			padding 10px
@@ -61,10 +71,11 @@
 	.question
 		border-bottom 1px solid #DDD
 		widthOfANumber = 50px
+		clear both
 		.numbers
 			width widthOfANumber*3
-			display inline-block
-			padding-top 15px
+			float left
+			padding-top 24px
 			> div
 				display inline-block
 				text-align center
@@ -82,8 +93,8 @@
 			.views::after
 				content 'vues'
 		.content
-			width (960px - widthOfANumber*3)
-			display inline-block
+			margin-left widthOfANumber*3
+			display block
 			padding 10px
 			.title
 				padding 6px
