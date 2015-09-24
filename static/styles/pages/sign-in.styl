@@ -1,0 +1,115 @@
+body
+	overflow-y scroll
+.headers
+	h1
+		display inline-block
+		padding 10px
+		padding-right 20px
+		opacity 0.4
+		&.active
+			opacity 1
+.sign-in
+	.field
+		margin auto
+		width 450px
+		padding 6px
+		label, .input
+			display inline-block
+		label
+			font-weight 400
+			width (150px - 12px)
+		input, button
+			width (300px - 12px)
+		button
+			padding 9px
+			i
+				opacity 0.6
+				margin-right 4px
+			
+	// label, .input
+	// 	display inline-block
+	// 	padding 6px
+	// label
+	// 	padding-left 55px
+	// 	width 20%
+	// .input
+	// 	width 80%
+	// 	input, button
+	// 		width 300px
+#pageContent
+	width 100%
+	overflow hidden
+	.scroller
+		position relative
+		left 0%
+		transition left 400ms linear
+		width 200%
+		&.scroll
+			left -100%
+			transition left 400ms linear
+		.page
+			width 50%
+			display inline-block
+			vertical-align top
+.part
+	h2
+		font-size 23px
+		padding-top 30px
+		padding-left 5px
+		padding-right 5px
+		i
+			padding-right 10px
+			opacity 0.6
+	.field
+		display inline-block
+		width 50%
+		> label
+			font-weight 400
+			padding 8px
+			padding-left 20px
+			width 200px
+			display inline-block
+			&:after
+				content ' :'
+		> .content
+			padding 6px
+			padding-left 20px
+			display inline-block
+		.content.yesNo
+			label
+				padding-left 5px
+				padding-right 15px
+		&.full
+			display block
+			width auto
+			> .label
+				padding 8px
+				padding-left 20px
+				> label
+					font-weight 400
+					width 50%
+					display inline-block
+				> .content
+					width 50%
+					display inline-block
+			.underContent
+				margin-left 50px
+				margin-right 30px
+				> textarea
+					width 100%
+					padding 5px
+					font-family inherit
+					resize vertical
+					height 70px
+			> label
+				width auto
+				display block
+			> .content
+				width auto
+				display block
+			padding-right 0px
+
+p
+	text-align justify
+	padding 6px
+	line-height 120%

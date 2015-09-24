@@ -1,0 +1,130 @@
+mixin yesNo(varname)
+	.content.yesNo
+		input(type='radio', ng-model=varname, value='1')
+		label Oui
+		input(type='radio', ng-model=varname, value='0')
+		label Non
+
+div(ng-controller='sign-in')
+	.headers
+		h1(ng-class='{active: connexionScreen}', ng-click='connexionScreen=true') Connexion
+		h1(ng-class='{active: !connexionScreen}', ng-click='connexionScreen=false') Adhérer à Hello World
+	div#pageContent
+		.scroller(ng-class='{scroll: !connexionScreen}')
+			div.page.sign-in
+				.field
+					label Adresse mail
+					.input
+						input
+				.field
+					label Mot de passe
+					.input
+						input
+				.field
+					label
+					.input
+						button
+							i.fa.fa-sign-in
+							| Se connecter
+			div.page.sign-up
+				div.intro.
+					Bla bla
+				form(ng-init='MF = "(e)"')
+					.part
+						h2
+							i.fa.fa-clone
+							span Généralités
+						.field
+							label Nom
+							.content
+								input.uppercase(type='text', ng-model='form.surname')
+						.field
+							label Prénom
+							.content
+								input.uppercase(type='text', ng-model='form.name')
+						.field
+							label Date de naissance
+							.content
+								input(type='date', ng-model='form.birthDate')
+						.field
+							label Sexe
+							.content
+								select(ng-options='index as gender for (index, gender) in gender', ng-model='form.gender', ng-change='MF = ((form.gender==0) ? "" : "e")')
+					.part
+						h2
+							i.fa.fa-thumb-tack
+							span Coordonnées
+						.field
+							label Téléphone fixe
+							.content
+								input(type='text', ng-model='form.phone.fixe')
+						.field
+							label Téléphone portable
+							.content
+								input(type='text', ng-model='form.phone.portable')
+						.field
+							label Adresse
+							.content
+								input(type='text', ng-model='form.address.plain')
+						.field
+							label Code postal
+							.content
+								input(type='text', ng-model='form.address.postalCode')
+						.field
+							label Ville
+							.content
+								input(type='text', ng-model='form.address.city')
+						.field
+							label E-mail personnel
+							.content
+								input(type='text', ng-model='form.email.perso')
+						.field
+							label E-mail institutionnel
+							.content
+								input(type='text', ng-model='form.email.university')
+					.part
+						h2
+							i.fa.fa-info-circle
+							span Rensignements complémentaires
+						.field
+							label Vous êtes inscrit{{MF}} en 
+							.content
+								input(type='text', ng-model='form.complement.inscription')
+						.field
+							label L'année denière, vous étiez inscrit{{MF}} en 
+							.content
+								input(type='text', ng-model='form.complement.inscriptionLastYear')
+						.field.full
+							.label
+								label Avez-vous déjà fait partie d'un club ou d'une association ?
+								+yesNo('form.complement.experienceAssos')
+							.underContent(ng-show='form.complement.experienceAssos=="1"')
+								textarea(name='inAsso', ng-model='form.complement.experienceAssosDetails')
+						.field.full
+							.label
+								label Avez-vous des idées de projet pour votre association ?
+								+yesNo('form.complement.ideeProjets')
+							.underContent(ng-show='form.complement.ideeProjets=="1"')
+								textarea(name='inAsso', ng-model='form.complement.ideeProjetsDetails')
+						.field.full
+							.label
+								label Êtes-vous intéressé{{MF}} par un rôle actif dans l'association ?
+								+yesNo('form.complement.activeRole')
+							//- label Si oui, dans quelle mesure :
+							.underContent(ng-show='form.complement.activeRole=="1"')
+								textarea(name='inAsso', ng-model='form.complement.activeRoleDetails', placeholder='Dans quelle mesure ?')
+					.part
+						br
+						br
+						br
+						p.
+							L'association HelloWorld s'engage à n'utiliser ces informations que dans le cadre privé de ses activités. Elles ne pourront être divulguées à des tiers qu'avec l'accord préalable de la personne concernée.
+
+						p.
+							Pour valider la création de votre compte, nous allons vous envoyer un mail à votre adresse institutionnelle ({{form.mail.university}}).
+							Pour être inscrit, il faut verser la somme de <b>4€</b> en liquide, au bureau de Hello World, sur le campus Triolet.
+
+						p.
+							Je donne mon accord à l'association HelloWorld de traiterces données et certifie sur l'honneur l'exactitude de ces rensignements.
+
+						p (La signature est à faire l)	
