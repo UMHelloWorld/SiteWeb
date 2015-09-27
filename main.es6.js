@@ -10,14 +10,39 @@
 */
 require("core-js");
 
-var express = require('express');
-var bodyParser = require('body-parser');
+let express = require('express');
+let bodyParser = require('body-parser');
+let session = require('express-session');
 
-var app = express();
+let generateSecretSession = (old) => {
+	let r = (old||'') + parseInt(Math.random()*100000000).toString(36);
+	return (r.length<25) ? generateSecretSession(r) : r;
+};
 
-var mysql      = require('mysql');
-var connection = mysql.createConnection(JSON.parse(require('fs').readFileSync('config-mysql.json').toString()));
+let getSecretSession = () => {
+	let value = '';
+	try{
+		value = require('fs').readFileSync('session-secret').toString();
+	}catch(e){}
+	if(value==''){
+		value = generateSecretSession();
+		require('fs').writeFileSync('session-secret', value);
+	}
+	return value;
+};
+let sha1sum = (input) => require('crypto').createHash('sha1').update(input).digest('hex');
+
+let mysql      = require('mysql');
+let connection = mysql.createConnection(JSON.parse(require('fs').readFileSync('config-mysql.json').toString()));
 connection.connect();
+
+let app = express();
+app.set('trust proxy', 1);
+app.use(session({
+	secret: getSecretSession(),
+	resave: false,
+	saveUninitialized: false
+}))
 
 //Pour les requêtes POST
 app.use(bodyParser.urlencoded({ extended: true }));
