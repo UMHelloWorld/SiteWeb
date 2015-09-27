@@ -18,17 +18,28 @@ app.controller('list-documents', function($scope, $http) {
 	$scope.activeTab = 0;
 
 	$scope.search = '';
-	$scope.UEs = [
-		{name: 'Algèbre linéaire & théorie des groupes', code: 'HLMA501'},
-		{name: 'Combinatoire énumérative', code: 'HLMA504'},
-		{name: 'Algorithmique des graphes', code: 'HLIN501'},
-		{name: 'Anglais S5', code: 'HLLV501'},
-		{name: 'Langages Formels', code: 'HLIN502'},
-		{name: 'Modélisation et programmation par objet', code: 'HLIN505'},
-		{name: 'Concepts et programmation système', code: 'HLIN504'},
-		{name: 'Réseaux', code: 'HLIN503'},
-		{name: 'Techniques de com & conduite de projets', code: 'HLIN506'},
-	];
+	// $scope.UEs = [
+	// 	{name: 'Algèbre linéaire & théorie des groupes', code: 'HLMA501'},
+	// 	{name: 'Combinatoire énumérative', code: 'HLMA504'},
+	// 	{name: 'Algorithmique des graphes', code: 'HLIN501'},
+	// 	{name: 'Anglais S5', code: 'HLLV501'},
+	// 	{name: 'Langages Formels', code: 'HLIN502'},
+	// 	{name: 'Modélisation et programmation par objet', code: 'HLIN505'},
+	// 	{name: 'Concepts et programmation système', code: 'HLIN504'},
+	// 	{name: 'Réseaux', code: 'HLIN503'},
+	// 	{name: 'Techniques de com & conduite de projets', code: 'HLIN506'},
+	// ];
+	$scope.UEs = [];
+	var updateUEs = function(listUE){
+		listUE = listUE.data || listUE;
+		console.log(listUE);
+		while($scope.UEs.length)
+			$scope.UEs.pop();
+		listUE.forEach(function(ue){
+			$scope.UEs.push(ue);
+		});
+	}
+	$http.get('/api/courses').then(updateUEs, console.log.bind(console.log, 'Sync error [/api/document]'));
 
 	$scope.UeTree = {
 		name: '$root',
@@ -94,7 +105,7 @@ app.controller('list-documents', function($scope, $http) {
 		]
 	};
 
-	$scope.myDocuments = [];
+	$scope.myDocuments = $scope.UEs;
 	function importDocuments(){
 		while($scope.myDocuments.length)
 			$scope.myDocuments.pop();
@@ -110,7 +121,7 @@ app.controller('list-documents', function($scope, $http) {
 			});
 		})($scope.UeTree.content);
 	}
-	importDocuments();
+	// importDocuments();
 	$scope.$watch('UeTree', importDocuments, true);
 
 	$scope.currentNode = {

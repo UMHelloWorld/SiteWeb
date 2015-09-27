@@ -3,7 +3,7 @@ script(src='https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js')
 script(src='/static/scripts/marked-angular.js')
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
 
-if false
+if params.display=='list'
 	#listDocuments(ng-controller='list-documents')
 		.headers(ng-init='filtre=""')
 			.header(class='{{["active", ""][activeTab]}}', ng-mousedown='activeTab = 0')
@@ -31,8 +31,8 @@ if false
 			.slider(class='{{["","showSecond"][activeTab]}}')
 				.content
 					.ue(ng-repeat='doc in myDocuments')
-						div.leaf()
-							b {{doc.code}}
+						a.leaf(href='/course/{{doc.id}}-{{doc.codeUE}}')
+							b {{doc.codeUE}}
 							div {{doc.name}}
 				.content
 					.path
@@ -62,5 +62,19 @@ if false
 	.header
 		i.fa.fa-newspaper-o.icon
 		span Actualités
-else
+if params.display=='ue'
+	div#dispUE
+		.title
+			h1= params.course.name
+			h2= params.course.codeUE
+		p= params.course.description
+		div.listDocuments
+			each doc in params.documents
+				a.document(href='/document/'+doc.id+'-'+doc.name)
+					.title= doc.name
+					.tags
+						each tag in doc.tags
+							.tag= tag
+	//- div= dbg
+if params.display=='pdf'
 	include pdf-viewer
