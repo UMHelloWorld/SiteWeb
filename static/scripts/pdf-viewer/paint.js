@@ -18,8 +18,8 @@ window.paintify = function(div) {
 	
 	div.appendChild(tmp_canvas);
 
-	tmp_canvas.style.zIndex = 100000;
-	canvas.style.zIndex = 10000;
+	tmp_canvas.style.zIndex = 100;
+	canvas.style.zIndex = 99;
 
 	var mouse = {x: 0, y: 0};
 	var last_mouse = {x: 0, y: 0};

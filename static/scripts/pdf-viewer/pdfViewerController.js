@@ -41,7 +41,7 @@ app.controller('pdf-viewer', function($scope, $http, annotations) {
     }
     $scope.$parent.drawPdf = draw;
 
-    PDFJS.getDocument('/static/other/poly.pdf').then(function(pdf){
+    PDFJS.getDocument('/static/documents/'+docData.id+'.pdf').then(function(pdf){
         PdfSource = pdf;
         $scope.$watch('$parent.currentPdfPage', draw);
         $scope.$parent.currentPdfPage = 1;
