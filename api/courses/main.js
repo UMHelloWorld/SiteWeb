@@ -5,15 +5,17 @@ module.exports = function (express, context) {
 	var connection = context.connection;
 
 	router.route('/').get(function (req, res) {
-		connection.query(context.queries.getDocumentsWithCourseInfo, function (err, results) {
+		connection.query('SELECT * FROM Course', function (err, results) {
 			res.json(results.map(function (o) {
 				return {
 					id: +o.id,
-					courseId: +o.courseId,
+					idFormation: +o.idFormation,
+					semester: +o.semester,
+					codeUE: o.codeUE,
 					name: o.name,
-					tags: o.tags.split('|'),
-					courseName: o.courseName,
-					courseCodeUE: o.courseCodeUE
+					description: o.description,
+					linkENT: o.linkENT,
+					tutorat: +o.tutorat
 				};
 			}));
 		});

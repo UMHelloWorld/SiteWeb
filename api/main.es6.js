@@ -1,9 +1,6 @@
 module.exports = (express, context) => {
-	var APIs = ['documents'];
+	var APIs = ['documents', 'courses'];
 
-	// Object.assign(context, {
-	// 	mysql: null
-	// });
 	var apiRouter = express.Router({mergeParams: true});
 	APIs.forEach((API) => {
 		apiRouter.use('/'+API, require('./'+API+'/main.js')(express, context));
