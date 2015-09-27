@@ -11,15 +11,15 @@ div(ng-controller='sign-in')
 		h1(ng-class='{active: !connexionScreen}', ng-click='connexionScreen=false') Adhérer à Hello World
 	div#pageContent
 		.scroller(ng-class='{scroll: !connexionScreen}')
-			div.page.sign-in
+			form.page.sign-in(action='/sign-in', method='POST')
 				.field
 					label Adresse mail
 					.input
-						input
+						input(name='mail')
 				.field
 					label Mot de passe
 					.input
-						input
+						input(name='password')
 				.field
 					label
 					.input
