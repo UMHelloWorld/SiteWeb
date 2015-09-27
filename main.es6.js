@@ -30,48 +30,61 @@ app.set('views', __dirname + '/views')
 //Les vues sont en jade, préprocesseur pour HTML
 app.set('view engine', 'jade');
 
-var pages = [
+let pages = [
 	{
 		url: 'index',
 		icon: 'home',
-		title: 'Accueil'
+		title: 'Accueil',
+		need: []
 	},
 	{
 		url: 'calendar',
 		icon: 'calendar',
-		title: 'Planning'
+		title: 'Planning',
+		need: []
 	},
 	{
 		url: 'documents',
 		icon: 'book',
-		title: 'Cours'
+		title: 'Cours',
+		need: []
 	},
 	{
 		url: 'tutoring',
 		icon: 'graduation-cap',
-		title: 'Tutorat & entraide'
+		title: 'Tutorat & entraide',
+		need: []
 	},
 	{
 		url: 'sign-in',
 		icon: 'sign-in',
-		title: 'Connexion'
+		title: 'Connexion',
+		need: ['not-connected']
+	},
+	{
+		url: 'sign-out',
+		icon: 'sign-out',
+		title: 'Déconnexion',
+		need: ['connected']
 	},
 ];
 
-app.use('/api', require('./api/main.js')(express));
 
 app.get('/', (req, res) => {
 	res.redirect("/index");
 });
 
-var queries = {
-	getTopics: require('fs').readFileSync('./sql/getTopics.sql').toString()
-};
+
+let queries = {};
+[
+	'getTopics',
+	'getDocumentsWithCourseInfo'
+].forEach((name) => {queries[name] = require('fs').readFileSync('./sql/'+name+'.sql').toString()});
+
+app.use('/api', require('./api/main.js')(express, {connection: connection, queries: queries}));
 
 app.get('/forum/', (req, res) => {
-	console.log(queries.getTopics);
 	connection.query(queries.getTopics, function(err, results){
-		console.log(results);
 		render(req, res, 'tutoring', {
 			showForum: true,
 			showTopic: true,
@@ -92,7 +105,13 @@ app.get('/forum/', (req, res) => {
 function render(req, res, page, params){
 	res.render("index.jade", 
 		{
-			pages: pages.map(
+			pages: pages.filter((page) => page.need.filter((requirement) => {
+				if(requirement=='connected' && req.session.connected)
+					return false;
+				if(requirement=='not-connected' && !req.session.connected)
+					return false;
+				return true;
+			}).length==0).map(
 				(page) => ({
 					url: page.url,
 					title: page.title,
@@ -102,10 +121,60 @@ function render(req, res, page, params){
 			),
 			page: page,
 			params: params || {},
+			urlParams: req.params,
 			dbg: JSON.stringify(params)
 		}
 	);
 }
+
+
+app.get('/sign-out', (req, res) => {
+	req.session.destroy();
+	res.redirect('/');
+});
+
+app.post('/sign-in', (req, res) => {
+	console.log(req.body);
+	if(!req.body.mail || !req.body.password)
+		return res.redirect('/sign-in');
+	connection.query('SELECT * FROM User WHERE (email_perso = ? OR email_university = ?) AND password = UNHEX(?) LIMIT 1', [
+			req.body.mail, req.body.mail, sha1sum(req.body.password)
+		], function(err, result){
+			if(result.length){
+				req.session.connected = true;
+				Object.assign(req.session, result.pop());
+			}
+			console.log(req.session);
+			res.redirect(req.session.connected ? 'home' : 'sign-in');
+		}
+	);
+});
+
+app.get('/documents', (req, res) =>		 res.redirect('/documents/list'));
+app.get('/documents/list', (req, res) => render(req, res, 'documents', { display: 'list' }) );
+app.get('/course/:id-:codeUE', (req, res) => {
+	connection.query('SELECT * FROM Course WHERE id = ?', [+req.params.id], (err, results) => {
+		if(results.length==0)
+			return res.redirect('/404/ue');
+		let course = results.pop();
+		connection.query('SELECT * FROM Document WHERE courseId = ?', [+course.id], (err, results) => {
+			console.log(err, results);
+			render(req, res, 'documents', { display: 'ue', documents: results.map(function(o){
+				o.tags = o.tags.split('|');
+				return o;
+			}), course: course });
+		})
+	});
+});
+app.get('/document/:id-:name', (req, res) => {
+	connection.query('SELECT * FROM Document WHERE id = ?', [+req.params.id], (err, results) => {
+		if(results.length==0)
+			return res.redirect('/404/doc');
+		let doc = results.pop();
+		doc.tags = doc.tags.split('|');
+		render(req, res, 'documents', { display: 'pdf', document: doc, documentStr: JSON.stringify(doc) });
+	});
+});
 
 app.get('/:page', (req, res) => {
 	if(req.params.page=='tutoring')
